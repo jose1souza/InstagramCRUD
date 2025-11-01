@@ -11,7 +11,6 @@ import java.util.List;
 
 import model.Message;
 import model.ModelException;
-import model.Post;
 import model.User;
 import model.data.DAOFactory;
 import model.data.DAOUtils;
@@ -28,12 +27,13 @@ public class MySQLMessageDAO implements MessageDAO {
 		try {
 			connection = MySQLConnectionFactory.getConnection();
 
-			String sqlInsert = "INSERT INTO messages VALUES " + "(DEFAULT, ?,CURDATE(),?,?)";
+			String sqlInsert = "INSERT INTO messages (content,date_message,sender_id, receiver_id)\r\n"
+					+ "VALUES (?,NOW(),?,?);";
 
 			preparedStatement = connection.prepareStatement(sqlInsert);
 			preparedStatement.setString(1, message.getContent());
-			preparedStatement.setString(2, message.getNameUserSend());
-			preparedStatement.setString(3, message.getNameUserReceinder());
+			preparedStatement.setInt(2, message.getUserSend().getId());
+			preparedStatement.setInt(3, message.getUserReceiver().getId());
 
 			preparedStatement.executeUpdate();
 		} catch (SQLException sqle) {
@@ -66,7 +66,8 @@ public class MySQLMessageDAO implements MessageDAO {
 			preparedStatement = connection.prepareStatement(sqlUpdate);
 			preparedStatement.setString(1, message.getContent());
 			preparedStatement.setInt(2, message.getUserSend().getId());
-			preparedStatement.setInt(3, message.getUserReceinder().getId());
+			preparedStatement.setInt(3, message.getUserReceiver().getId());
+			preparedStatement.setInt(4, message.getId());
 			
 			preparedStatement.executeUpdate();
 		} catch (SQLException sqle) {
@@ -87,7 +88,9 @@ public class MySQLMessageDAO implements MessageDAO {
 		try {
 			connection = MySQLConnectionFactory.getConnection();  
 
-			String sqlDelete = "delete from messages where id = ?;";
+			String sqlDelete = "DELETE FROM messages "
+					+ "WHERE "
+					+ "id_message = ?;";
 
 			preparedStatement = connection.prepareStatement(sqlDelete);
 			preparedStatement.setInt(1, message.getId());
@@ -101,85 +104,55 @@ public class MySQLMessageDAO implements MessageDAO {
 		}
 
 	}
-
+	
 	@Override
 	public List<Message> findAll() throws ModelException {
-		
 		Connection connection = null;
-		Statement statement = null;
-		ResultSet rs = null;
-		List<Message> messagesList = new ArrayList<>();
+	    PreparedStatement preparedStatement = null;
+	    ResultSet rs = null;
+	    List<Message> messagesList = new ArrayList<>();
+	    
+	    try {
+	        connection = MySQLConnectionFactory.getConnection();
+	        
+	        String sql = "SELECT \r\n"
+	        		+ "    id_message, content, date_message, sender_id, receiver_id\r\n"
+	        		+ "FROM\r\n"
+	        		+ "    messages\r\n"
+	        		+ "ORDER BY date_message DESC;";
+	        preparedStatement = connection.prepareStatement(sql);
+	        rs = preparedStatement.executeQuery();
+	        
+	        while (rs.next()) {
+	            int id = rs.getInt("id_message");
+	            String content = rs.getString("content");
+	            Date date = rs.getTimestamp("date_message");
+	            int senderId = rs.getInt("sender_id");
+	            int receiverId = rs.getInt("receiver_id");
 
-		try {
-			connection = MySQLConnectionFactory.getConnection();
+	            Message message = new Message(id);
+	            message.setContent(content);
+	            message.setDate(date);
+	            
+	            User sender = DAOFactory.createUserDAO().findById(senderId);
+	            User receiver = DAOFactory.createUserDAO().findById(receiverId);
 
-			statement = connection.createStatement();
-			String sqlSeletc = "SELECT \r\n"
-					+ "    m.id_message,\r\n"
-					+ "    m.content,\r\n"
-					+ "    m.date_message,\r\n"
-					+ "    sender.id AS sender_id,\r\n"
-					+ "    sender.nome AS sender_nome,\r\n"
-					+ "    sender.sexo AS sender_sexo,\r\n"
-					+ "    sender.email AS sender_email,\r\n"
-					+ "    receiver.id AS receiver_id,\r\n"
-					+ "    receiver.nome AS receiver_nome,\r\n"
-					+ "    receiver.sexo AS receiver_sexo,\r\n"
-					+ "    receiver.email AS receiver_email\r\n"
-					+ "FROM\r\n"
-					+ "    messages m\r\n"
-					+ "        JOIN\r\n"
-					+ "    users sender ON m.sender_id = sender.id\r\n"
-					+ "        JOIN\r\n"
-					+ "    users receiver ON m.receiver_id = receiver.id\r\n"
-					+ "ORDER BY m.date_message DESC;";
+	            message.setUserSend(sender);
+	            message.setUserReceiver(receiver);
 
-			rs = statement.executeQuery(sqlSeletc);
+	            messagesList.add(message);
+	    }}
+	        catch (SQLException sqle) {
+		        DAOUtils.sqlExceptionTreatement("Erro ao carregar mensagens do BD.", sqle);
+		    } catch (ModelException me) {
+		        throw me;
+		    } finally {
+		        DAOUtils.close(rs);
+		        DAOUtils.close(preparedStatement);
+		        DAOUtils.close(connection);
+		    }
 
-			setUpUsers(rs, messagesList);
-		} catch (SQLException sqle) {
-			DAOUtils.sqlExceptionTreatement("Erro ao carregar mensagens do BD.", sqle);
-		} finally {
-			DAOUtils.close(rs);
-			DAOUtils.close(statement);
-			DAOUtils.close(connection);
-		}
-
-		return messagesList;
+		    return messagesList;
 	}
-	
-	private void setUpUsers(ResultSet rs, List<Message> messagesList)
-            throws SQLException, ModelException {
-		
-		while (rs.next()) {
-			int messageId = rs.getInt("id"); 
-			String messageContent = rs.getString("content");
-			Date messageDate = rs.getDate("message_date");
-			int userSendId = rs.getInt("user_id");
-			int userReceiverId = rs.getInt("user_id");
-
-			Message newMessage = new Message(messageId);
-			newMessage.setContent(messageContent);
-			newMessage.setDate(messageDate);
-
-			User messageUser = DAOFactory.createUserDAO().findById(userSendId);
-			newMessage.setUserSend(messageUser);
-			
-			messagesList.add(newMessage);
-		}
-	}
-	
-
-	/*@Override
-	public List<Message> findBySenderId(int senderId) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Message> findByReceiverId(int receiverId) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
-	}*/
 
 }

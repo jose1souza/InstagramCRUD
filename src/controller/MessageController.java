@@ -4,7 +4,6 @@ import java.util.List;
 
 import model.Message;
 import model.ModelException;
-import model.Post;
 import model.User;
 import model.data.DAOFactory;
 import model.data.MessageDAO;
@@ -17,6 +16,7 @@ public class MessageController {
     private final MessageDAO messageDAO = DAOFactory.createMessageDAO();
     private IMessageListView messageListView;
     private IMessageFormView messageFormView;
+    private User usuarioLogado = new User(1);
     
  // Listagem
     public void loadMessages() {
@@ -27,6 +27,19 @@ public class MessageController {
             messageListView.showMessage("Erro ao carregar mensagens: " + e.getMessage());
         }
     }
+    // TODO
+    //APENAS PARA TESTE
+    public MessageController() {
+        try {
+            this.usuarioLogado = DAOFactory.createUserDAO().findById(1); // ID de teste
+        } catch (ModelException e) {
+            e.printStackTrace();
+        }
+    }public User getUsuarioLogado() {
+        return usuarioLogado;
+    }
+
+
 
     // Salvar ou atualizar
     public void saveOrUpdate(boolean isNew) {
@@ -45,7 +58,7 @@ public class MessageController {
             } else {
                 messageDAO.update(message);
             }
-            messageFormView.showInfoMessage("Mensagem salvo com sucesso!");
+            messageFormView.showInfoMessage("Mensagem salva com sucesso!");
             messageFormView.close();
         } catch (ModelException e) {
             messageFormView.showErrorMessage("Erro ao salvar: " + e.getMessage());
@@ -56,10 +69,10 @@ public class MessageController {
     public void excluirMessage(Message message) {
         try {
             messageDAO.delete(message);
-            messageListView.showMessage("Mensagem excluído!");
+            messageListView.showMessage("Mensagem excluída!");
             loadMessages();
         } catch (ModelException e) {
-            messageListView.showMessage("Erro ao excluir post: " + e.getMessage());
+            messageListView.showMessage("Erro ao excluir mensagens: " + e.getMessage());
         }
     }
 

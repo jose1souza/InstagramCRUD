@@ -28,8 +28,9 @@ public class MessageFormView extends JDialog implements IMessageFormView{
     private final boolean isNew;
     private final MessageListView parent;
     private Message message;
+    //private final User currentUser;
 
-    public MessageFormView(MessageListView parent, Message post, MessageController controller) {
+    public MessageFormView(MessageListView parent, Message message, MessageController controller) {
         super(parent, true);
         this.controller = controller;
         this.controller.setMessageFormView(this);
@@ -37,6 +38,7 @@ public class MessageFormView extends JDialog implements IMessageFormView{
         this.parent = parent;
         this.message = message;
         this.isNew = (message == null);
+        //this.currentUser = currentUser;
 
         setTitle(isNew ? "Nova Mensagem" : "Editar Mensagem");
         setSize(400, 300);
@@ -48,7 +50,7 @@ public class MessageFormView extends JDialog implements IMessageFormView{
 
         // Adiciona ComboBox para usuáro que envia
         gbc.gridx = 0; gbc.gridy = 0;
-        add(new JLabel("Usuário Que enviou:"), gbc);
+        add(new JLabel("Para:"), gbc);
         gbc.gridx = 1;
         add(authorComboBox, gbc);
 
@@ -85,7 +87,8 @@ public class MessageFormView extends JDialog implements IMessageFormView{
         if (message == null) message = new Message(0);
         message.setContent(contentArea.getText());
         // Atualiza o usuário do message sempre que o formulário é enviado
-        message.setUserReceinder((User) authorComboBox.getSelectedItem());
+        message.setUserReceiver((User) authorComboBox.getSelectedItem());
+        message.setUserSend(controller.getUsuarioLogado());
         return message;
     }
 
@@ -93,11 +96,11 @@ public class MessageFormView extends JDialog implements IMessageFormView{
     public void setMessageInForm(Message message) {
         contentArea.setText(message.getContent());
         // Atualiza o combobox para refletir o usuário da mensagem
-        if (message.getUserReceinder() != null) {
+        if (message.getUserReceiver() != null) {
             boolean found = false;
             for (int i = 0; i < authorComboBox.getItemCount(); i++) {
                 User u = authorComboBox.getItemAt(i);
-                if (u.getId() == message.getUserReceinder().getId()) {
+                if (u.getId() == message.getUserReceiver().getId()) {
                     authorComboBox.setSelectedIndex(i);
                     found = true;
                     break;
@@ -105,8 +108,8 @@ public class MessageFormView extends JDialog implements IMessageFormView{
             }
             // Se não encontrar, adiciona o usuário ao combobox e seleciona
             if (!found) {
-                authorComboBox.addItem(message.getUserReceinder());
-                authorComboBox.setSelectedItem(message.getUserReceinder());
+                authorComboBox.addItem(message.getUserReceiver());
+                authorComboBox.setSelectedItem(message.getUserReceiver());
             }
         }
     }

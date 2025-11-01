@@ -67,4 +67,9 @@ public class User {
 	public String toString() {
 		return name;
 	}
+
+	public void setUserId(int i) {
+		this.id = i;
+		
+	}
 }

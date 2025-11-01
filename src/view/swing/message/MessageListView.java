@@ -20,7 +20,7 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.MessageController;
 import model.Message;
-import model.Post;
+import model.User;
 
 public class MessageListView extends JDialog implements IMessageListView {
 	private MessageController controller;
@@ -129,14 +129,9 @@ public class MessageListView extends JDialog implements IMessageListView {
         }
 
         public Message getMessageAt(int row) {
-			// TODO Auto-generated method stub
-			return null;
+			return messages.get(row);
 		}
-
-		public Message getPostAt(int row) {
-            return messages.get(row);
-        }
-
+		
         @Override public int getRowCount() { return messages.size(); }
 
         @Override public int getColumnCount() { return columns.length; }
@@ -147,8 +142,8 @@ public class MessageListView extends JDialog implements IMessageListView {
         public Object getValueAt(int row, int col) {
             Message m = messages.get(row);
             switch (col) {
-                case 0: return m.getContent();
-                case 1: return m.getUserReceinder().getName();
+                case 0: return m.getId(); 
+                case 1: return m.getContent()+" "+m.getUserReceiver().getName();
                 default: return null;
             }
         }

@@ -28,13 +28,13 @@ public class MySQLUserDAO implements UserDAO {
 
 			String sqlIsert = " INSERT INTO "
 					        + " users VALUES "
-					        + " (DEFAULT, ?, ?, ?); ";
+					        + " (DEFAULT, ?, ?, ?,?); ";
 
 			preparedStatement = connection.prepareStatement(sqlIsert);
 			preparedStatement.setString(1, user.getName());
 			preparedStatement.setString(2, user.getGender().toString());
 			preparedStatement.setString(3, user.getEmail());
-
+			preparedStatement.setString(4, user.getPasswordHash());
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException sqle) {
@@ -61,13 +61,15 @@ public class MySQLUserDAO implements UserDAO {
 					         + " nome = ?, "
 					         + " sexo = ?, "
 					         + " email = ? "
+					         + " password_hash = ?"
 					         + " WHERE id = ?; ";
 
 			preparedStatement = connection.prepareStatement(sqlUpdate);
 			preparedStatement.setString(1, user.getName());
 			preparedStatement.setString(2, user.getGender().toString());
 			preparedStatement.setString(3, user.getEmail());
-			preparedStatement.setInt(4, user.getId());
+			preparedStatement.setString(4, user.getPasswordHash());
+			preparedStatement.setInt(5, user.getId());
 
 			preparedStatement.executeUpdate();
 
@@ -191,5 +193,42 @@ public class MySQLUserDAO implements UserDAO {
 		}
 
 		return user;
+	}
+
+	@Override
+	public User findByEmail(String email) throws ModelException {
+		Connection connection = null;
+	    PreparedStatement preparedStatement = null;
+	    ResultSet rs = null;
+
+	    try {
+	        connection = MySQLConnectionFactory.getConnection();
+	        String sql = "SELECT \n"
+	        		+ "    id, nome, sexo, email, password_hash\n"
+	        		+ "FROM\n"
+	        		+ "    users\n"
+	        		+ "WHERE\n"
+	        		+ "    email = ?;";
+	        preparedStatement = connection.prepareStatement(sql);
+	        preparedStatement.setString(1, email);
+	        rs = preparedStatement.executeQuery();
+
+	        if (rs.next()) {
+	            User user = new User(rs.getInt("id"));
+	            user.setName(rs.getString("nome"));
+	            user.setGender(UserGender.valueOf(rs.getString("sexo")));
+	            user.setEmail(rs.getString("email"));
+	            user.setPasswordHash(rs.getString("password_hash"));
+	            return user;
+	        } else {
+	            return null;
+	        }
+	    } catch (SQLException e) {
+	        throw new ModelException("Erro ao buscar usuário por email.", e);
+	    } finally {
+	        DAOUtils.close(rs);
+	        DAOUtils.close(preparedStatement);
+	        DAOUtils.close(connection);
+	    }
 	}
 }

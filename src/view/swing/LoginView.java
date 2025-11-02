@@ -1,7 +1,23 @@
 package view.swing;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import model.User;
+import model.data.DAOFactory;
+import model.data.UserDAO;
+import model.data.mysql.utils.PasswordHash;
 
 public class LoginView extends JDialog {
     private boolean authenticated = false;
@@ -30,23 +46,47 @@ public class LoginView extends JDialog {
         JPanel buttons = new JPanel();
         JButton loginBtn = new JButton("Entrar");
         JButton cancelBtn = new JButton("Cancelar");
+        JButton registerBtn = new JButton("Registrar");
         buttons.add(loginBtn);
         buttons.add(cancelBtn);
+        buttons.add(registerBtn);
 
         loginBtn.addActionListener(e -> {
-            String email = emailField.getText();
-            String senha = new String(passwordField.getPassword());
-            if ("eac".equals(email) && "123".equals(senha)) {
-                authenticated = true;
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Email ou senha inválidos.", "Erro", JOptionPane.ERROR_MESSAGE);
+            String email = emailField.getText().trim();
+            String password = new String(passwordField.getPassword()).trim();
+
+            try {
+                UserDAO userDAO = DAOFactory.createUserDAO();
+                User user = userDAO.findByEmail(email);
+
+                if (user == null) {
+                    JOptionPane.showMessageDialog(this, "Usuário não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (PasswordHash.checkPassword(password, user.getPasswordHash())) {
+                    authenticated = true;
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Senha incorreta.", "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao autenticar: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         });
+
 
         cancelBtn.addActionListener(e -> {
             authenticated = false;
             dispose();
+        });
+        
+        registerBtn.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> {
+                RegisterView registerView = new RegisterView();
+                registerView.setVisible(true);
+            });
         });
 
         add(form, BorderLayout.CENTER);
@@ -54,6 +94,7 @@ public class LoginView extends JDialog {
         pack();
         setLocationRelativeTo(null);
     }
+
 
     public boolean isAuthenticated() {
         return authenticated;

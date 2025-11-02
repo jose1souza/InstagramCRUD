@@ -65,10 +65,9 @@ public class Message{
 		if (content == null || content.isBlank()) {
 			throw new IllegalArgumentException("Conteúdo da mensagem não pode ser vazio.");
 		}
-		
-		/*if (user_send == null || user_send.getId() <= 0) {
+		if (user_send == null || user_send.getId() <= 0) {
 			throw new IllegalArgumentException("Usuário inválido para o envio da mensagem.");
-		}*/
+		}
 		if(user_receiver == null  || user_receiver.getId() <= 0) {
 			throw new IllegalArgumentException("Usuário inválido para o envio da mensagem");
 		}

@@ -17,15 +17,3 @@ INSERT INTO messages (content, date_message, sender_id, receiver_id)
 VALUES ('Oi Ana, tudo bem?', NOW(), 1, 4),
 ("Oi Jose, tudo, e você", NOW(), 4, 1),
 ("Tudo bem também", NOW(), 1, 4);
-
-UPDATE messages 
-SET 
-    content = 'Oi Ana,tudo bom?',
-    date_message = NOW(),
-    sender_id = 1,
-    receiver_id = 4
-WHERE
-    id_message = 1; 
-START TRANSACTION;
-select * from messages;
-ROLLBACK;

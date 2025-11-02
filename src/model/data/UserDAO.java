@@ -11,4 +11,5 @@ public interface UserDAO {
 	void delete(User user) throws ModelException;
 	List<User> findAll() throws ModelException;
     User findById(int id) throws ModelException;
+    User findByEmail(String email) throws ModelException;
 }

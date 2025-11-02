@@ -2,7 +2,7 @@ package model;
 
 public enum UserGender {
 	M("Masculino"), 
-	F("Feminimo");
+	F("Feminino");
 	
 	private String value;
 	

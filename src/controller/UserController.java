@@ -9,61 +9,79 @@ import view.swing.user.IUserFormView;
 import view.swing.user.IUserListView;
 
 public class UserController {
-    private final UserDAO userDAO = DAOFactory.createUserDAO();
-    private IUserListView userListView;
-    private IUserFormView userFormView;
+	private final UserDAO userDAO = DAOFactory.createUserDAO();
+	private IUserListView userListView;
+	private IUserFormView userFormView;
 
-    // Listagem
-    public void loadUsers() {
-        try {
-            List<User> users = userDAO.findAll();
-            userListView.setUserList(users);
-        } catch (ModelException e) {
-            userListView.showMessage("Erro ao carregar usuários: " + e.getMessage());
-        }
-    }
+	public void save(User user) throws ModelException {
+		if (user == null) {
+			throw new IllegalArgumentException("Usuário não pode ser nulo.");
+		}
 
-    // Salvar ou atualizar
-    public void saveOrUpdate(boolean isNew) {
-        User user = userFormView.getUserFromForm();
+		if (user.getName() == null || user.getName().isBlank()) {
+			throw new ModelException("Nome é obrigatório.");
+		}
+		if (user.getEmail() == null || user.getEmail().isBlank()) {
+			throw new ModelException("Email é obrigatório.");
+		}
+		if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
+			throw new ModelException("Senha é obrigatória.");
+		}
 
-        try {
-            user.validate();
-        } catch (IllegalArgumentException e) {
-            userFormView.showErrorMessage("Erro de validação: " + e.getMessage());
-            return;
-        }
+		userDAO.save(user);
+	}
 
-        try {
-            if (isNew) {
-                userDAO.save(user);
-                userFormView.showInfoMessage("Usuário salvo com sucesso!");
-            } else {
-                userDAO.update(user);
-                userFormView.showInfoMessage("Usuário atualizado com sucesso!");
-            }
-            userFormView.close();
-        } catch (ModelException e) {
-            userFormView.showErrorMessage("Erro ao salvar: " + e.getMessage());
-        }
-    }
+	// Listagem
+	public void loadUsers() {
+		try {
+			List<User> users = userDAO.findAll();
+			userListView.setUserList(users);
+		} catch (ModelException e) {
+			userListView.showMessage("Erro ao carregar usuários: " + e.getMessage());
+		}
+	}
 
-    // Excluir
-    public void excluirUsuario(User user) {
-        try {
-            userDAO.delete(user);
-            userListView.showMessage("Usuário excluído!");
-            loadUsers();
-        } catch (ModelException e) {
-            userListView.showMessage("Erro ao excluir: " + e.getMessage());
-        }
-    }
+	// Salvar ou atualizar
+	public void saveOrUpdate(boolean isNew) {
+		User user = userFormView.getUserFromForm();
 
-    public void setUserFormView(IUserFormView userFormView) {
-        this.userFormView = userFormView;
-    }
+		try {
+			user.validate();
+		} catch (IllegalArgumentException e) {
+			userFormView.showErrorMessage("Erro de validação: " + e.getMessage());
+			return;
+		}
 
-    public void setUserListView(IUserListView userListView) {
-        this.userListView = userListView;
-    }
+		try {
+			if (isNew) {
+				userDAO.save(user);
+				userFormView.showInfoMessage("Usuário salvo com sucesso!");
+			} else {
+				userDAO.update(user);
+				userFormView.showInfoMessage("Usuário atualizado com sucesso!");
+			}
+			userFormView.close();
+		} catch (ModelException e) {
+			userFormView.showErrorMessage("Erro ao salvar: " + e.getMessage());
+		}
+	}
+
+	// Excluir
+	public void excluirUsuario(User user) {
+		try {
+			userDAO.delete(user);
+			userListView.showMessage("Usuário excluído!");
+			loadUsers();
+		} catch (ModelException e) {
+			userListView.showMessage("Erro ao excluir: " + e.getMessage());
+		}
+	}
+
+	public void setUserFormView(IUserFormView userFormView) {
+		this.userFormView = userFormView;
+	}
+
+	public void setUserListView(IUserListView userListView) {
+		this.userListView = userListView;
+	}
 }

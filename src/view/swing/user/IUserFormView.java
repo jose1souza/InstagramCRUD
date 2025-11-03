@@ -1,9 +1,6 @@
 package view.swing.user;
 
-import controller.UserController;
 import model.User;
-
-import javax.swing.*;
 
 public interface IUserFormView {
     User getUserFromForm();

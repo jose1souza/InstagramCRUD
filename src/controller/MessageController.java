@@ -15,17 +15,11 @@ public class MessageController {
 	private final MessageDAO messageDAO = DAOFactory.createMessageDAO();
 	private IMessageListView messageListView;
 	private IMessageFormView messageFormView;
-	private final UserSession userSession;
-
-	public MessageController(UserSession user) {
-		this.userSession = user;
-	}
 
 	// Listagem
 	public void loadMessagesSender() {
 		try {
-			int senderId = userSession.getUser().getId();
-			List<Message> messages = messageDAO.findBySenderId(senderId);
+			List<Message> messages = messageDAO.findBySenderId(UserSession.getInstance().getUser().getId());
 			messageListView.setMessageList(messages);
 		} catch (ModelException e) {
 			messageListView.showMessage("Erro ao carregar mensagens enviadas: " + e.getMessage());
@@ -34,8 +28,7 @@ public class MessageController {
 	
 	public void loadMessagesReceiver() {
 		try {
-			int receiverId = userSession.getUser().getId();
-			List<Message> messages = messageDAO.findByReceiverId(receiverId);
+			List<Message> messages = messageDAO.findByReceiverId(UserSession.getInstance().getUser().getId());
 			messageListView.setMessageList(messages);
 		} catch (ModelException e) {
 			messageListView.showMessage("Erro ao carregar mensagens recebidas: " + e.getMessage());
@@ -56,9 +49,6 @@ public class MessageController {
 		try {
 			if (isNew) {
 				messageDAO.save(message);
-			}
-			if(message.getId() == userSession.getUser().getId()) {
-				messageFormView.showInfoMessage("Você não pode editar mensagens de outros usuários!");
 			}
 			else {
 				messageDAO.update(message);

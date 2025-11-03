@@ -71,9 +71,6 @@ public class Message{
 		if(user_receiver == null  || user_receiver.getId() <= 0) {
 			throw new IllegalArgumentException("Usuário inválido para o envio da mensagem");
 		}
-		if (user_receiver.getId() == user_send.getId()) {
-			throw new IllegalArgumentException("Você não pode enviar uma mensagem para si mesmo");
-		}
 		
 	}
 	

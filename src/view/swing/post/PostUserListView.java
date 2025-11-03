@@ -20,18 +20,15 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.PostController;
 import model.Post;
-import model.UserSession;
 
 public class PostUserListView extends JDialog implements IPostListView{
 	private PostController controller;
     private final PostTableModel tableModel = new PostTableModel();
     private final JTable table = new JTable(tableModel);
-    private final UserSession userSession;
     
-    public PostUserListView(JFrame parent,UserSession userSession) {
+    public PostUserListView(JFrame parent) {
     	super(parent, "Posts", true);
-        this.userSession= userSession;
-        this.controller = new PostController(userSession);
+        this.controller = new PostController();
         this.controller.setPostListView(this);
 
         setSize(650, 400);

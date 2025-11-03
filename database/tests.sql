@@ -13,8 +13,8 @@ UPDATE messages
 SET 
     content = 'Oi Ana,tudo bom?',
     date_message = NOW(),
-    sender_id = 1,
-    receiver_id = 4
+    sender_id = 2,
+    receiver_id = 1
 WHERE
     id_message = 1; 
 
@@ -29,7 +29,7 @@ FROM
 
 -- Usuário com email jose
 SELECT 
-    id, nome, sexo, email, password_hash
+    id, user_name, gender, email, password_hash
 FROM
     users
 WHERE
@@ -47,3 +47,4 @@ FROM
 WHERE
     receiver_id = 2
     ORDER BY date_message DESC;
+    

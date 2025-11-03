@@ -29,13 +29,11 @@ public class MessageFormView extends JDialog implements IMessageFormView{
     private final boolean isNew;
     private final MessageListView parent;
     private Message message;
-    private final UserSession userSession;
 
-    public MessageFormView(MessageListView parent, Message message, MessageController controller,UserSession userSession) {
+    public MessageFormView(MessageListView parent, Message message, MessageController controller) {
         super(parent, true);
         this.controller = controller;
         this.controller.setMessageFormView(this);
-        this.userSession = userSession;
         this.parent = parent;
         this.message = message;
         this.isNew = (message == null);
@@ -47,21 +45,20 @@ public class MessageFormView extends JDialog implements IMessageFormView{
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5,5,5,5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        	gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Para:"), gbc);
+            gbc.gridx = 1;
+            add(authorComboBox, gbc);
 
-        // Adiciona ComboBox para usuáro que envia
-        gbc.gridx = 0; gbc.gridy = 0;
-        add(new JLabel("Para:"), gbc);
-        gbc.gridx = 1;
-        add(authorComboBox, gbc);
-
-        // Preenche ComboBox com usuários
-        List<User> users = controller.getAllUsers();
-        DefaultComboBoxModel<User> comboModel = new DefaultComboBoxModel<>();
-        for (User u : users) {
-            comboModel.addElement(u);
-        }
-        authorComboBox.setModel(comboModel);
-
+            List<User> users = controller.getAllUsers();
+            DefaultComboBoxModel<User> comboModel = new DefaultComboBoxModel<>();
+            for (User u : users) {
+            	if(u.getId() != UserSession.getInstance().getUser().getId())
+            		comboModel.addElement(u);
+            }
+            authorComboBox.setModel(comboModel);
+        
         gbc.gridx = 0; gbc.gridy = 1;
         add(new JLabel("Conteúdo:"), gbc);
         gbc.gridx = 1;
@@ -86,16 +83,14 @@ public class MessageFormView extends JDialog implements IMessageFormView{
     public Message getMessageFromForm() {
         if (message == null) message = new Message(0);
         message.setContent(contentArea.getText());
-        // Atualiza o usuário do message sempre que o formulário é enviado
         message.setUserReceiver((User) authorComboBox.getSelectedItem());
-        message.setUserSend(userSession.getUser());
+        message.setUserSend(UserSession.getInstance().getUser());
         return message;
     }
 
     @Override
     public void setMessageInForm(Message message) {
         contentArea.setText(message.getContent());
-        // Atualiza o combobox para refletir o usuário da mensagem
         if (message.getUserReceiver() != null) {
             boolean found = false;
             for (int i = 0; i < authorComboBox.getItemCount(); i++) {
@@ -106,7 +101,6 @@ public class MessageFormView extends JDialog implements IMessageFormView{
                     break;
                 }
             }
-            // Se não encontrar, adiciona o usuário ao combobox e seleciona
             if (!found) {
                 authorComboBox.addItem(message.getUserReceiver());
                 authorComboBox.setSelectedItem(message.getUserReceiver());

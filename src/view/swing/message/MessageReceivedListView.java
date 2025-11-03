@@ -15,16 +15,15 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.MessageController;
 import model.Message;
-import model.UserSession;
 
 public class MessageReceivedListView extends JDialog implements IMessageListView {
     private final MessageController controller;
     private final MessageTableModel tableModel = new MessageTableModel();
     private final JTable table = new JTable(tableModel);
 
-    public MessageReceivedListView(JFrame parent, UserSession userSession) {
+    public MessageReceivedListView(JFrame parent) {
         super(parent, "Mensagens Recebidas", true);
-        this.controller = new MessageController(userSession);
+        this.controller = new MessageController();
         this.controller.setMessageListView(this);
 
         setSize(650, 400);
@@ -53,7 +52,7 @@ public class MessageReceivedListView extends JDialog implements IMessageListView
     }
 
     static class MessageTableModel extends AbstractTableModel {
-        private final String[] columns = {"Remetente", "Conteúdo"};
+        private final String[] columns = {"Remetente", "Conteúdo", "Data"};
         private List<Message> messages = new ArrayList<>();
 
         public void setMessages(List<Message> messages) {
@@ -77,6 +76,7 @@ public class MessageReceivedListView extends JDialog implements IMessageListView
             switch (col) {
                 case 0: return m.getUserSend().getName();
                 case 1: return m.getContent();
+                case 2: return m.getDate();
                 default: return null;
             }
         }

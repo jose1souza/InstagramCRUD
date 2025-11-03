@@ -6,18 +6,18 @@ USE instagram;
 
 CREATE TABLE IF NOT EXISTS users(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(150) NOT NULL,
-    sexo ENUM('M', 'F'),
+    user_name VARCHAR(150) NOT NULL,
+    gender ENUM('M', 'F'),
     email VARCHAR(150) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
-); 
+    user_password VARCHAR(255) NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS posts(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     post_date DATE NOT NULL,
     user_id INT NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE messages (
@@ -26,6 +26,6 @@ CREATE TABLE messages (
     date_message DATETIME NOT NULL,
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
-    FOREIGN KEY (sender_id) REFERENCES users(id),
-    FOREIGN KEY (receiver_id) REFERENCES users(id)
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

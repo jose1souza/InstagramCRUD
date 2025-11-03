@@ -20,18 +20,15 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.MessageController;
 import model.Message;
-import model.UserSession;
 
 public class MessageListView extends JDialog implements IMessageListView {
 	private MessageController controller;
 	private final MessageTableModel tableModel = new MessageTableModel();
 	private final JTable table = new JTable(tableModel);
-	private final UserSession userSession;
 	
-	public MessageListView(JFrame parent, UserSession userSession) {
+	public MessageListView(JFrame parent) {
 		super(parent, "Mensagens Enviadas", true);
-		this.userSession = userSession;
-		this.controller = new MessageController(userSession);
+		this.controller = new MessageController();
 		this.controller.setMessageListView(this);
 
 		setSize(650, 400);
@@ -45,7 +42,7 @@ public class MessageListView extends JDialog implements IMessageListView {
 		
 		JButton addButton = new JButton("Adicionar Mensagem");
 		addButton.addActionListener(e -> {
-			MessageFormView form = new MessageFormView(this, null, controller,userSession);
+			MessageFormView form = new MessageFormView(this, null, controller);
 			form.setVisible(true);
 		});
 		
@@ -80,7 +77,7 @@ public class MessageListView extends JDialog implements IMessageListView {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 Message message = tableModel.getMessageAt(row);
-                MessageFormView form = new MessageFormView(this, message, controller,userSession);
+                MessageFormView form = new MessageFormView(this, message, controller);
                 form.setVisible(true);
             }
         });
@@ -116,14 +113,12 @@ public class MessageListView extends JDialog implements IMessageListView {
 		JOptionPane.showMessageDialog(this, msg);
 	}
 	
-	// Atualiza lista após cadastro/edição/exclusão
     public void refresh() {
         controller.loadMessagesSender();
     }
     
- // Tabela de posts
     static class MessageTableModel extends AbstractTableModel {
-        private final String[] columns = {"Destinatário", "Conteúdo"};
+        private final String[] columns = {"Destinatário", "Conteúdo", "Data"};
         private List<Message> messages = new ArrayList<>();
 
         public void setMessages(List<Message> messages) {
@@ -147,6 +142,7 @@ public class MessageListView extends JDialog implements IMessageListView {
             switch (col) {
                 case 0: return m.getUserReceiver().getName(); 
                 case 1: return m.getContent();
+                case 2: return m.getDate();
                 default: return null;
             }
         }

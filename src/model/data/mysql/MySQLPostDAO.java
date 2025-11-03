@@ -27,8 +27,8 @@ public class MySQLPostDAO implements PostDAO {
 		try {
 			connection = MySQLConnectionFactory.getConnection();
 
-			String sqlIsert = " INSERT INTO posts " + 
-			                  " VALUES (DEFAULT, ?, CURDATE(), ?); ";
+			String sqlIsert = "INSERT INTO posts (content, post_date, user_id)" 
+					+ " VALUES (?, CURDATE(), ?); ";
 
 			preparedStatement = connection.prepareStatement(sqlIsert);
 			preparedStatement.setString(1, post.getContent());

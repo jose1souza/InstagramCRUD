@@ -1,10 +1,8 @@
 package view.swing.user;
 
-import java.util.List;
-
 import model.User;
 
 public interface IUserListView {
-    void setUserList(List<User> users);
+    void setUser(User user);
     void showMessage(String msg);
 }

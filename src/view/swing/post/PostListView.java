@@ -20,18 +20,17 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.PostController;
 import model.Post;
-import model.UserSession;
+
 
 public class PostListView extends JDialog implements IPostListView {
     private PostController controller;
     private final PostTableModel tableModel = new PostTableModel();
     private final JTable table = new JTable(tableModel);
-    private final UserSession userSession;
+    
 
-    public PostListView(JFrame parent,UserSession userSession) {
+    public PostListView(JFrame parent) {
         super(parent, "Posts", true);
-        this.userSession= userSession;
-        this.controller = new PostController(userSession);
+        this.controller = new PostController();
         this.controller.setPostListView(this);
 
         setSize(650, 400);
@@ -45,22 +44,10 @@ public class PostListView extends JDialog implements IPostListView {
         
         controller.loadPosts();
 
-        /*JButton addButton = new JButton("Adicionar Post");
-        addButton.addActionListener(e -> {
-            PostFormView form = new PostFormView(this, null, controller);
-            form.setVisible(true);
-        });*/
-
-        // Menu de contexto
         JPopupMenu popupMenu = new JPopupMenu();
-        /*JMenuItem editItem = new JMenuItem("Editar");
-        JMenuItem deleteItem = new JMenuItem("Excluir");
-        popupMenu.add(editItem);
-        popupMenu.add(deleteItem);*/
 
         table.addMouseListener(new MouseAdapter() {
         	
-            
         	private void showPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     int row = table.rowAtPoint(e.getPoint());
@@ -72,33 +59,9 @@ public class PostListView extends JDialog implements IPostListView {
             }
         });
 
-        /*editItem.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row >= 0) {
-                Post post = tableModel.getPostAt(row);
-                PostFormView form = new PostFormView(this, post, controller);
-                form.setVisible(true);
-            }
-        });
-
-        deleteItem.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row >= 0) {
-                Post post = tableModel.getPostAt(row);
-                int confirm = JOptionPane.showConfirmDialog(this, "Excluir post?", "Confirmação", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    controller.excluirPost(post);
-                }
-            }
-        });*/
-
         JPanel panel = new JPanel(new BorderLayout());
-        //panel.add(addButton, BorderLayout.EAST);
 
         add(scrollPane, BorderLayout.CENTER);
-        //add(panel, BorderLayout.SOUTH);
-
-    
     }
 
     @Override
@@ -118,7 +81,7 @@ public class PostListView extends JDialog implements IPostListView {
 
     // Tabela de posts
     static class PostTableModel extends AbstractTableModel {
-        private final String[] columns = {"Conteúdo", "Autor"};
+        private final String[] columns = {"Conteúdo", "Autor", "Data"};
         private List<Post> posts = new ArrayList<>();
 
         public void setPosts(List<Post> posts) {
@@ -142,6 +105,7 @@ public class PostListView extends JDialog implements IPostListView {
             switch (col) {
                 case 0: return p.getContent();
                 case 1: return p.getUser().getName();
+                case 2: return p.getDate();
                 default: return null;
             }
         }

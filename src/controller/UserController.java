@@ -2,6 +2,7 @@ package controller;
 
 import java.util.List;
 import model.User;
+import model.UserSession;
 import model.ModelException;
 import model.data.DAOFactory;
 import model.data.UserDAO;
@@ -31,17 +32,15 @@ public class UserController {
 		userDAO.save(user);
 	}
 
-	// Listagem
 	public void loadUsers() {
 		try {
-			List<User> users = userDAO.findAll();
-			userListView.setUserList(users);
+			User user = userDAO.findById(UserSession.getInstance().getUser().getId());
+			userListView.setUser(user);
 		} catch (ModelException e) {
 			userListView.showMessage("Erro ao carregar usuários: " + e.getMessage());
 		}
 	}
 
-	// Salvar ou atualizar
 	public void saveOrUpdate(boolean isNew) {
 		User user = userFormView.getUserFromForm();
 
@@ -53,29 +52,32 @@ public class UserController {
 		}
 
 		try {
+			user.setId(UserSession.getInstance().getUser().getId());
 			if (isNew) {
 				userDAO.save(user);
 				userFormView.showInfoMessage("Usuário salvo com sucesso!");
 			} else {
+				user.setPasswordHash(UserSession.getInstance().getUser().getPasswordHash());
 				userDAO.update(user);
 				userFormView.showInfoMessage("Usuário atualizado com sucesso!");
 			}
+			UserSession.getInstance().setUser(user);
 			userFormView.close();
 		} catch (ModelException e) {
 			userFormView.showErrorMessage("Erro ao salvar: " + e.getMessage());
+			System.out.println(user.getEmail());
 		}
 	}
 
-	// Excluir
-	/*public void excluirUsuario(User user) {
+	
+	public void excluirUsuario(User user) {
 		try {
-			userDAO.delete(user);
+			userDAO.delete(UserSession.getInstance().getUser());
 			userListView.showMessage("Usuário excluído!");
-			loadUsers();
 		} catch (ModelException e) {
 			userListView.showMessage("Erro ao excluir: " + e.getMessage());
 		}
-	}*/
+	}
 
 	public void setUserFormView(IUserFormView userFormView) {
 		this.userFormView = userFormView;

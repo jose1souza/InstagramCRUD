@@ -56,13 +56,8 @@ public class MySQLUserDAO implements UserDAO {
 		try {
 			connection = MySQLConnectionFactory.getConnection();
 
-			String sqlUpdate = " UPDATE users "
-					         + " set "
-					         + " nome = ?, "
-					         + " sexo = ?, "
-					         + " email = ? "
-					         + " password_hash = ?"
-					         + " WHERE id = ?; ";
+			String sqlUpdate = "UPDATE users SET user_name = ?,\n"
+					+ "gender = ?, email = ?, user_password = ? WHERE id = ?;";
 
 			preparedStatement = connection.prepareStatement(sqlUpdate);
 			preparedStatement.setString(1, user.getName());
@@ -121,15 +116,15 @@ public class MySQLUserDAO implements UserDAO {
 			connection = MySQLConnectionFactory.getConnection();
 
 			statement = connection.createStatement();
-			String sqlSelect = " SELECT * FROM users order by nome; ";
+			String sqlSelect = " SELECT * FROM users order by user_name; ";
 
 			rs = statement.executeQuery(sqlSelect);
 
 			while (rs.next()) {
 				int id = rs.getInt("id");
-				String name = rs.getString("nome");
+				String name = rs.getString("user_name");
 				
-				String genderStr = rs.getString("sexo");
+				String genderStr = rs.getString("gender");
 				UserGender gender = 
 						genderStr.equals("M") ? UserGender.M : UserGender.F;
 				
@@ -174,8 +169,8 @@ public class MySQLUserDAO implements UserDAO {
 			rs = preparedStatement.executeQuery();
 
 			if (rs.next()) {
-				String name = rs.getString("nome");
-				String genderStr = rs.getString("sexo");
+				String name = rs.getString("user_name");
+				String genderStr = rs.getString("gender");
 				UserGender gender = genderStr.equals("M") ? UserGender.M : UserGender.F;
 				String email = rs.getString("email");
 
@@ -204,7 +199,7 @@ public class MySQLUserDAO implements UserDAO {
 	    try {
 	        connection = MySQLConnectionFactory.getConnection();
 	        String sql = "SELECT \n"
-	        		+ "    id, nome, sexo, email, password_hash\n"
+	        		+ "    id, user_name, gender, email, user_password\n"
 	        		+ "FROM\n"
 	        		+ "    users\n"
 	        		+ "WHERE\n"
@@ -215,10 +210,10 @@ public class MySQLUserDAO implements UserDAO {
 
 	        if (rs.next()) {
 	            User user = new User(rs.getInt("id"));
-	            user.setName(rs.getString("nome"));
-	            user.setGender(UserGender.valueOf(rs.getString("sexo")));
+	            user.setName(rs.getString("user_name"));
+	            user.setGender(UserGender.valueOf(rs.getString("gender")));
 	            user.setEmail(rs.getString("email"));
-	            user.setPasswordHash(rs.getString("password_hash"));
+	            user.setPasswordHash(rs.getString("user_password"));
 	            return user;
 	        } else {
 	            return null;

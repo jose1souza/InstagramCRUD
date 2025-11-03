@@ -73,27 +73,27 @@ public class RegisterView extends JDialog {
 		buttons.add(loginBtn);
 
 		registerBtn.addActionListener(e -> {
-			String nome = nameField.getText().trim();
+			String name = nameField.getText().trim();
 			String email = emailField.getText().trim();
-			UserGender sexo = (UserGender) genderComboBox.getSelectedItem();
-			String senha = new String(passwordField.getPassword()).trim();
+			UserGender gender = (UserGender) genderComboBox.getSelectedItem();
+			String password = new String(passwordField.getPassword()).trim();
 
-			if (nome.isEmpty() || email.isEmpty() || senha.isEmpty()) {
+			if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Preencha todos os campos.", "Erro", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			User novoUsuario = new User(0);
-			novoUsuario.setName(nome);
-			novoUsuario.setEmail(email);
-			novoUsuario.setGender(sexo);
-			novoUsuario.setPassword(senha);
+			User newUser = new User(0);
+			newUser.setName(name);
+			newUser.setEmail(email);
+			newUser.setGender(gender);
+			newUser.setPassword(password);
 
 			RegisterAuthenticator authenticator = new RegisterAuthenticator();
 			try {
-				if (!authenticator.autheticathor(novoUsuario)) {
+				if (!authenticator.autheticathor(newUser)) {
 					UserController controller = new UserController();
-					controller.save(novoUsuario);
+					controller.save(newUser);
 					JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
 					authenticated = true;
 					dispose();

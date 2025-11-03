@@ -1,16 +1,22 @@
 package view.swing.user;
 
-import controller.UserController;
-import model.User;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.List;
+
+import controller.UserController;
+import model.User;
 
 public class UserListView extends JDialog implements IUserListView {
     private UserController controller;
@@ -32,17 +38,11 @@ public class UserListView extends JDialog implements IUserListView {
         table.setShowGrid(true);
         table.setGridColor(Color.LIGHT_GRAY);
 
-        /*JButton addButton = new JButton("Adicionar Usuário");
-        addButton.addActionListener(e -> {
-            UserFormView form = new UserFormView(this, null, controller);
-            form.setVisible(true);
-        });*/
-
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem editItem = new JMenuItem("Editar");
-        //JMenuItem deleteItem = new JMenuItem("Excluir");
+        JMenuItem deleteItem = new JMenuItem("Excluir");
         popupMenu.add(editItem);
-        //popupMenu.add(deleteItem);
+        popupMenu.add(deleteItem);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -73,19 +73,19 @@ public class UserListView extends JDialog implements IUserListView {
             }
         });
 
-        /*deleteItem.addActionListener(e -> {
+        deleteItem.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 User user = tableModel.getUserAt(row);
                 int confirm = JOptionPane.showConfirmDialog(this, "Excluir usuário?", "Confirmação", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     controller.excluirUsuario(user);
+                    System.exit(0);
                 }
             }
-        });*/
+        });
 
         JPanel panel = new JPanel(new BorderLayout());
-        //panel.add(addButton, BorderLayout.EAST);
 
         add(scrollPane, BorderLayout.CENTER);
         add(panel, BorderLayout.SOUTH);
@@ -94,8 +94,8 @@ public class UserListView extends JDialog implements IUserListView {
     }
 
     @Override
-    public void setUserList(List<User> users) {
-        tableModel.setUsers(users);
+    public void setUser(User user) {
+        tableModel.setUser(user);
     }
 
     @Override
@@ -103,42 +103,54 @@ public class UserListView extends JDialog implements IUserListView {
         JOptionPane.showMessageDialog(this, msg);
     }
 
-    // Atualiza lista após cadastro/edição/exclusão
     public void refresh() {
         controller.loadUsers();
     }
 
-    // Tabela de usuários
     static class UserTableModel extends AbstractTableModel {
         private final String[] columns = {"ID", "Nome", "Sexo", "Email"};
-        private List<User> users = new ArrayList<>();
+        private User user;
 
-        public void setUsers(List<User> users) {
-            this.users = users;
+        public void setUser(User user) {
+            this.user = user;
             fireTableDataChanged();
         }
 
         public User getUserAt(int row) {
-            return users.get(row);
+            return user;
         }
 
-        @Override public int getRowCount() { return users.size(); }
+        @Override
+        public int getRowCount() {
+            return user == null ? 0 : 1;
+        }
 
-        @Override public int getColumnCount() { return columns.length; }
+        @Override
+        public int getColumnCount() {
+            return columns.length;
+        }
 
-        @Override public String getColumnName(int col) { return columns[col]; }
+        @Override
+        public String getColumnName(int col) {
+            return columns[col];
+        }
 
         @Override
         public Object getValueAt(int row, int col) {
-            User u = users.get(row);
+            if (user == null || row != 0) return null;
             switch (col) {
-                case 0: return u.getId();
-                case 1: return u.getName();
-                case 2: return u.getGender();
-                case 3: return u.getEmail();
+                case 0: return user.getId();
+                case 1: return user.getName();
+                case 2: return user.getGender();
+                case 3: return user.getEmail();
                 default: return null;
             }
         }
-        @Override public boolean isCellEditable(int row, int col) { return false; }
+
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            return false;
+        }
     }
+
 }

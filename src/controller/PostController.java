@@ -15,11 +15,6 @@ public class PostController {
     private final PostDAO postDAO = DAOFactory.createPostDAO();
     private IPostListView postListView;
     private IPostFormView postFormView;
-    private final UserSession userSession;
-    
-    public PostController(UserSession user) {
-		this.userSession = user;
-	}
 
     // Listagem
     public void loadPosts() {
@@ -34,7 +29,7 @@ public class PostController {
     // Listagem dos posts do usuário
     public void loadPostsByUser() {
         try {
-            List<Post> posts = postDAO.findByUserId(userSession.getUser().getId());
+            List<Post> posts = postDAO.findByUserId(UserSession.getInstance().getUser().getId());
             postListView.setPostList(posts);
         } catch (ModelException e) {
             postListView.showMessage("Erro ao carregar posts: " + e.getMessage());
@@ -51,16 +46,19 @@ public class PostController {
             postFormView.showErrorMessage("Erro de validação: " + e.getMessage());
             return;
         }
-        validateUserSession(post);
+        
         try {
         	
             if (isNew) {
+            	post.setUser(UserSession.getInstance().getUser());
                 postDAO.save(post);
             } else {
+            	post.setUser(UserSession.getInstance().getUser());
                 postDAO.update(post);
             }
             postFormView.showInfoMessage("Post salvo com sucesso!");
             postFormView.close();
+            loadPostsByUser();
         } catch (ModelException e) {
             postFormView.showErrorMessage("Erro ao salvar: " + e.getMessage());
         }
@@ -68,11 +66,10 @@ public class PostController {
 
     // Excluir
     public void excluirPost(Post post) {
-    	validateUserSession(post);
         try {
             postDAO.delete(post);
             postListView.showMessage("Post excluído!");
-            loadPosts();
+            loadPostsByUser();
         } catch (ModelException e) {
             postListView.showMessage("Erro ao excluir post: " + e.getMessage());
         }
@@ -95,11 +92,4 @@ public class PostController {
         }
     }
     
-    private void validateUserSession(Post post) {
-    	if(this.userSession.getUser().getId() != post.getUser().getId()) {
-    		postFormView.showInfoMessage("Este post é de outro usuário e não pode ser editado por você!");
-    		postFormView.close();
-    		return;
-    	}
-    }
 }

@@ -106,34 +106,31 @@ public class MySQLMessageDAO implements MessageDAO {
 	}
 	
 	@Override
-	public List<Message> findAll() throws ModelException {
-		Connection connection = null;
+	public List<Message> findBySenderId(int senderId) throws ModelException {
+	    Connection connection = null;
 	    PreparedStatement preparedStatement = null;
 	    ResultSet rs = null;
 	    List<Message> messagesList = new ArrayList<>();
-	    
+
 	    try {
 	        connection = MySQLConnectionFactory.getConnection();
-	        
-	        String sql = "SELECT \r\n"
-	        		+ "    id_message, content, date_message, sender_id, receiver_id\r\n"
-	        		+ "FROM\r\n"
-	        		+ "    messages\r\n"
-	        		+ "ORDER BY date_message DESC;";
+
+	        String sql = "SELECT id_message, content, date_message, sender_id, receiver_id " +
+	                     "FROM messages WHERE sender_id = ? ORDER BY date_message DESC;";
 	        preparedStatement = connection.prepareStatement(sql);
+	        preparedStatement.setInt(1, senderId);
 	        rs = preparedStatement.executeQuery();
-	        
+
 	        while (rs.next()) {
 	            int id = rs.getInt("id_message");
 	            String content = rs.getString("content");
 	            Date date = rs.getTimestamp("date_message");
-	            int senderId = rs.getInt("sender_id");
 	            int receiverId = rs.getInt("receiver_id");
 
 	            Message message = new Message(id);
 	            message.setContent(content);
 	            message.setDate(date);
-	            
+
 	            User sender = DAOFactory.createUserDAO().findById(senderId);
 	            User receiver = DAOFactory.createUserDAO().findById(receiverId);
 
@@ -141,11 +138,64 @@ public class MySQLMessageDAO implements MessageDAO {
 	            message.setUserReceiver(receiver);
 
 	            messagesList.add(message);
-	    }}
-	        catch (SQLException sqle) {
-		        DAOUtils.sqlExceptionTreatement("Erro ao carregar mensagens do BD.", sqle);
-		    } catch (ModelException me) {
-		        throw me;
+	        }
+	    } catch (SQLException sqle) {
+	        DAOUtils.sqlExceptionTreatement("Erro ao buscar mensagens.", sqle);
+	    } finally {
+	        DAOUtils.close(rs);
+	        DAOUtils.close(preparedStatement);
+	        DAOUtils.close(connection);
+	    }
+
+	    return messagesList;
+	}
+	
+	@Override
+	public List<Message> findByReceiverId(int receiverId) throws ModelException {
+		 Connection connection = null;
+		    PreparedStatement preparedStatement = null;
+		    ResultSet rs = null;
+		    List<Message> messagesList = new ArrayList<>();
+
+		    try {
+		        connection = MySQLConnectionFactory.getConnection();
+
+		        String sql = "SELECT \r\n"
+		        		+ "    id_message,\r\n"
+		        		+ "    content,\r\n"
+		        		+ "    date_message,\r\n"
+		        		+ "    sender_id,\r\n"
+		        		+ "    receiver_id ' +\r\n"
+		        		+ "    	                     '\r\n"
+		        		+ "FROM\r\n"
+		        		+ "    messages\r\n"
+		        		+ "WHERE\r\n"
+		        		+ "    receiver_id = ?" + "\r\n"
+		        		+ "ORDER BY date_message DESC;";
+		        preparedStatement = connection.prepareStatement(sql);
+		        preparedStatement.setInt(1, receiverId);
+		        rs = preparedStatement.executeQuery();
+
+		        while (rs.next()) {
+		            int id = rs.getInt("id_message");
+		            String content = rs.getString("content");
+		            Date date = rs.getTimestamp("date_message");
+		            int senderId = rs.getInt("sender_id");
+
+		            Message message = new Message(id);
+		            message.setContent(content);
+		            message.setDate(date);
+
+		            User sender = DAOFactory.createUserDAO().findById(senderId);
+		            User receiver = DAOFactory.createUserDAO().findById(receiverId);
+
+		            message.setUserSend(sender);
+		            message.setUserReceiver(receiver);
+
+		            messagesList.add(message);
+		        }
+		    } catch (SQLException sqle) {
+		        DAOUtils.sqlExceptionTreatement("Erro ao buscar mensagens.", sqle);
 		    } finally {
 		        DAOUtils.close(rs);
 		        DAOUtils.close(preparedStatement);
@@ -154,5 +204,7 @@ public class MySQLMessageDAO implements MessageDAO {
 
 		    return messagesList;
 	}
+	
+	
 
 }

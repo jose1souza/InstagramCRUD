@@ -15,10 +15,10 @@ public class PostFormView extends JDialog implements IPostFormView {
     private final JButton closeButton = new JButton("Fechar");
     private PostController controller;
     private final boolean isNew;
-    private final PostListView parent;
+    private final PostUserListView parent;
     private Post post;
 
-    public PostFormView(PostListView parent, Post post, PostController controller) {
+    public PostFormView(PostUserListView parent, Post post, PostController controller) {
         super(parent, true);
         this.controller = controller;
         this.controller.setPostFormView(this);
@@ -36,10 +36,10 @@ public class PostFormView extends JDialog implements IPostFormView {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Adiciona ComboBox para autor
-        gbc.gridx = 0; gbc.gridy = 0;
+        /*gbc.gridx = 0; gbc.gridy = 0;
         add(new JLabel("Autor:"), gbc);
         gbc.gridx = 1;
-        add(authorComboBox, gbc);
+        add(authorComboBox, gbc);*/
 
         // Preenche ComboBox com usuários
         List<User> users = controller.getAllUsers();

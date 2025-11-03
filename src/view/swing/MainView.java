@@ -1,4 +1,4 @@
-package view.swing;
+ package view.swing;
 
 import java.awt.BorderLayout;
 
@@ -14,39 +14,52 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import model.User;
+import model.UserSession;
 import view.swing.message.MessageListView;
+import view.swing.message.MessageReceivedListView;
 import view.swing.post.PostListView;
-import view.swing.user.UserListView;
+import view.swing.post.PostUserListView;
 
 public class MainView extends JFrame {
     private static final long serialVersionUID = 1L;
+    private final UserSession userSession;
 
-	public MainView() {
+	public MainView(UserSession userSession) {
+		this.userSession = userSession;
         setTitle("Instagram CRUD - Swing");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JMenuBar menuBar = new JMenuBar();
 
-        // Menu Usuários
-        JMenu menu = new JMenu("Usuários");
-        JMenuItem userListItem = new JMenuItem("Listar Usuários");
-        userListItem.addActionListener(e -> new UserListView(this).setVisible(true));
-        menu.add(userListItem);
-        menuBar.add(menu);
-
         // Menu Posts
         JMenu postMenu = new JMenu("Posts");
+        // item: Todos os posts
         JMenuItem postListItem = new JMenuItem("Listar Posts");
-        postListItem.addActionListener(e -> new PostListView(this).setVisible(true));
+        postListItem.addActionListener(e -> new PostListView(this,userSession).setVisible(true));
         postMenu.add(postListItem);
         menuBar.add(postMenu);
         
+        // Item: Posts do usuário logado
+        JMenuItem postUserItem = new JMenuItem("Meus Posts");
+        postUserItem.addActionListener(e -> new PostUserListView(this, userSession).setVisible(true));
+        postMenu.add(postUserItem);
+        
         // Menu de Mensagens
         JMenu messageMenu = new JMenu("Mensagens");
-        JMenuItem messageListItem = new JMenuItem("Listar Mensagens");
-        messageListItem.addActionListener(e -> new MessageListView(this).setVisible(true));
-        messageMenu.add(messageListItem);
+
+        // Item: Mensagens Enviadas
+        JMenuItem sentMessagesItem = new JMenuItem("Mensagens Enviadas");
+        sentMessagesItem.addActionListener(e -> new MessageListView(this, userSession).setVisible(true));
+        messageMenu.add(sentMessagesItem);
+
+        // Item: Mensagens Recebidas
+        JMenuItem receivedMessagesItem = new JMenuItem("Mensagens Recebidas");
+        receivedMessagesItem.addActionListener(e -> new MessageReceivedListView(this, userSession).setVisible(true));
+        messageMenu.add(receivedMessagesItem);
+
+        // Adiciona o menu ao menuBar
         menuBar.add(messageMenu);
 
         // Adiciona um menu vazio para empurrar o próximo menu para a direita
@@ -83,7 +96,9 @@ public class MainView extends JFrame {
             LoginView login = new LoginView();
             login.setVisible(true);
             if (login.isAuthenticated()) {
-                MainView mainView = new MainView();
+            	User userLogged = login.getUserAuthenticated();
+            	UserSession userSession = new UserSession(userLogged);
+                MainView mainView = new MainView(userSession);
                 mainView.setVisible(true);
                 mainView.setExtendedState(JFrame.MAXIMIZED_BOTH);
             } else {

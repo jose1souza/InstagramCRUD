@@ -18,6 +18,7 @@ import javax.swing.JTextArea;
 import controller.MessageController;
 import model.Message;
 import model.User;
+import model.UserSession;
 
 public class MessageFormView extends JDialog implements IMessageFormView{
 	private final JTextArea contentArea = new JTextArea(5, 20);
@@ -28,17 +29,16 @@ public class MessageFormView extends JDialog implements IMessageFormView{
     private final boolean isNew;
     private final MessageListView parent;
     private Message message;
-    //private final User currentUser;
+    private final UserSession userSession;
 
-    public MessageFormView(MessageListView parent, Message message, MessageController controller) {
+    public MessageFormView(MessageListView parent, Message message, MessageController controller,UserSession userSession) {
         super(parent, true);
         this.controller = controller;
         this.controller.setMessageFormView(this);
-
+        this.userSession = userSession;
         this.parent = parent;
         this.message = message;
         this.isNew = (message == null);
-        //this.currentUser = currentUser;
 
         setTitle(isNew ? "Nova Mensagem" : "Editar Mensagem");
         setSize(400, 300);
@@ -88,7 +88,7 @@ public class MessageFormView extends JDialog implements IMessageFormView{
         message.setContent(contentArea.getText());
         // Atualiza o usuário do message sempre que o formulário é enviado
         message.setUserReceiver((User) authorComboBox.getSelectedItem());
-        message.setUserSend(controller.getUsuarioLogado());
+        message.setUserSend(userSession.getUser());
         return message;
     }
 

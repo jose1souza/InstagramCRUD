@@ -15,14 +15,15 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import model.User;
+import model.auth.PasswordHash;
 import model.data.DAOFactory;
 import model.data.UserDAO;
-import model.data.mysql.utils.PasswordHash;
 
 public class LoginView extends JDialog {
     private boolean authenticated = false;
     private final JTextField emailField = new JTextField(20);
     private final JPasswordField passwordField = new JPasswordField(20);
+    private User userLogged;
 
     public LoginView() {
         setTitle("Instagram CRUD - Login");
@@ -66,6 +67,7 @@ public class LoginView extends JDialog {
 
                 if (PasswordHash.checkPassword(password, user.getPasswordHash())) {
                     authenticated = true;
+                    userLogged = user;
                     dispose();
                 } else {
                     JOptionPane.showMessageDialog(this, "Senha incorreta.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -98,6 +100,10 @@ public class LoginView extends JDialog {
 
     public boolean isAuthenticated() {
         return authenticated;
+    }
+    
+    public User getUserAuthenticated() {
+    	return userLogged;
     }
 }
 

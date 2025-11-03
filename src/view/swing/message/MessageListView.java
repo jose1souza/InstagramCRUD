@@ -20,16 +20,18 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.MessageController;
 import model.Message;
-import model.User;
+import model.UserSession;
 
 public class MessageListView extends JDialog implements IMessageListView {
 	private MessageController controller;
 	private final MessageTableModel tableModel = new MessageTableModel();
 	private final JTable table = new JTable(tableModel);
-
-	public MessageListView(JFrame parent) {
-		super(parent, "Mensagens", true);
-		this.controller = new MessageController();
+	private final UserSession userSession;
+	
+	public MessageListView(JFrame parent, UserSession userSession) {
+		super(parent, "Mensagens Enviadas", true);
+		this.userSession = userSession;
+		this.controller = new MessageController(userSession);
 		this.controller.setMessageListView(this);
 
 		setSize(650, 400);
@@ -40,10 +42,10 @@ public class MessageListView extends JDialog implements IMessageListView {
 		table.setRowHeight(36);
 		table.setShowGrid(true);
 		table.setGridColor(Color.LIGHT_GRAY);
-
+		
 		JButton addButton = new JButton("Adicionar Mensagem");
 		addButton.addActionListener(e -> {
-			MessageFormView form = new MessageFormView(this, null, controller);
+			MessageFormView form = new MessageFormView(this, null, controller,userSession);
 			form.setVisible(true);
 		});
 		
@@ -78,7 +80,7 @@ public class MessageListView extends JDialog implements IMessageListView {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 Message message = tableModel.getMessageAt(row);
-                MessageFormView form = new MessageFormView(this, message, controller);
+                MessageFormView form = new MessageFormView(this, message, controller,userSession);
                 form.setVisible(true);
             }
         });
@@ -95,17 +97,18 @@ public class MessageListView extends JDialog implements IMessageListView {
         });
 
         JPanel panel = new JPanel(new BorderLayout());
+        
         panel.add(addButton, BorderLayout.EAST);
 
         add(scrollPane, BorderLayout.CENTER);
         add(panel, BorderLayout.SOUTH);
 
-        controller.loadMessages();
+        controller.loadMessagesSender();
 	}
 
 	@Override
 	public void setMessageList(List<Message> messages) {
-		tableModel.setPosts(messages);
+		tableModel.setMessages(messages);
 	}
 
 	@Override
@@ -115,15 +118,15 @@ public class MessageListView extends JDialog implements IMessageListView {
 	
 	// Atualiza lista após cadastro/edição/exclusão
     public void refresh() {
-        controller.loadMessages();
+        controller.loadMessagesSender();
     }
     
  // Tabela de posts
     static class MessageTableModel extends AbstractTableModel {
-        private final String[] columns = {"Conteúdo", "Autor"};
+        private final String[] columns = {"Destinatário", "Conteúdo"};
         private List<Message> messages = new ArrayList<>();
 
-        public void setPosts(List<Message> messages) {
+        public void setMessages(List<Message> messages) {
             this.messages = messages;
             fireTableDataChanged();
         }
@@ -142,8 +145,8 @@ public class MessageListView extends JDialog implements IMessageListView {
         public Object getValueAt(int row, int col) {
             Message m = messages.get(row);
             switch (col) {
-                case 0: return m.getId(); 
-                case 1: return m.getContent()+" "+m.getUserReceiver().getName();
+                case 0: return m.getUserReceiver().getName(); 
+                case 1: return m.getContent();
                 default: return null;
             }
         }

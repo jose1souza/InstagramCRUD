@@ -18,7 +18,7 @@ public class UserListView extends JDialog implements IUserListView {
     private final JTable table = new JTable(tableModel);
 
     public UserListView(JFrame parent) {
-        super(parent, "Usuários", true);
+        super(parent, "Usuário", true);
         this.controller = new UserController();
         this.controller.setUserListView(this);
 
@@ -32,17 +32,17 @@ public class UserListView extends JDialog implements IUserListView {
         table.setShowGrid(true);
         table.setGridColor(Color.LIGHT_GRAY);
 
-        JButton addButton = new JButton("Adicionar Usuário");
+        /*JButton addButton = new JButton("Adicionar Usuário");
         addButton.addActionListener(e -> {
             UserFormView form = new UserFormView(this, null, controller);
             form.setVisible(true);
-        });
+        });*/
 
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem editItem = new JMenuItem("Editar");
-        JMenuItem deleteItem = new JMenuItem("Excluir");
+        //JMenuItem deleteItem = new JMenuItem("Excluir");
         popupMenu.add(editItem);
-        popupMenu.add(deleteItem);
+        //popupMenu.add(deleteItem);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -73,7 +73,7 @@ public class UserListView extends JDialog implements IUserListView {
             }
         });
 
-        deleteItem.addActionListener(e -> {
+        /*deleteItem.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 User user = tableModel.getUserAt(row);
@@ -82,10 +82,10 @@ public class UserListView extends JDialog implements IUserListView {
                     controller.excluirUsuario(user);
                 }
             }
-        });
+        });*/
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(addButton, BorderLayout.EAST);
+        //panel.add(addButton, BorderLayout.EAST);
 
         add(scrollPane, BorderLayout.CENTER);
         add(panel, BorderLayout.SOUTH);

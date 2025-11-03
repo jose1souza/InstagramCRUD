@@ -17,9 +17,9 @@ import javax.swing.SwingUtilities;
 
 import controller.UserController;
 import model.ModelException;
-import model.RegisterAuthenticator;
 import model.User;
 import model.UserGender;
+import model.auth.RegisterAuthenticator;
 
 public class RegisterView extends JDialog {
 	private boolean authenticated = false;

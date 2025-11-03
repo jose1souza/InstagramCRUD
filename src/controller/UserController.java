@@ -67,7 +67,7 @@ public class UserController {
 	}
 
 	// Excluir
-	public void excluirUsuario(User user) {
+	/*public void excluirUsuario(User user) {
 		try {
 			userDAO.delete(user);
 			userListView.showMessage("Usuário excluído!");
@@ -75,7 +75,7 @@ public class UserController {
 		} catch (ModelException e) {
 			userListView.showMessage("Erro ao excluir: " + e.getMessage());
 		}
-	}
+	}*/
 
 	public void setUserFormView(IUserFormView userFormView) {
 		this.userFormView = userFormView;

@@ -20,15 +20,18 @@ import javax.swing.table.AbstractTableModel;
 
 import controller.PostController;
 import model.Post;
+import model.UserSession;
 
 public class PostListView extends JDialog implements IPostListView {
     private PostController controller;
     private final PostTableModel tableModel = new PostTableModel();
     private final JTable table = new JTable(tableModel);
+    private final UserSession userSession;
 
-    public PostListView(JFrame parent) {
+    public PostListView(JFrame parent,UserSession userSession) {
         super(parent, "Posts", true);
-        this.controller = new PostController();
+        this.userSession= userSession;
+        this.controller = new PostController(userSession);
         this.controller.setPostListView(this);
 
         setSize(650, 400);
@@ -39,30 +42,26 @@ public class PostListView extends JDialog implements IPostListView {
         table.setRowHeight(36);
         table.setShowGrid(true);
         table.setGridColor(Color.LIGHT_GRAY);
+        
+        controller.loadPosts();
 
-        JButton addButton = new JButton("Adicionar Post");
+        /*JButton addButton = new JButton("Adicionar Post");
         addButton.addActionListener(e -> {
             PostFormView form = new PostFormView(this, null, controller);
             form.setVisible(true);
-        });
+        });*/
 
         // Menu de contexto
         JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem editItem = new JMenuItem("Editar");
+        /*JMenuItem editItem = new JMenuItem("Editar");
         JMenuItem deleteItem = new JMenuItem("Excluir");
         popupMenu.add(editItem);
-        popupMenu.add(deleteItem);
+        popupMenu.add(deleteItem);*/
 
         table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                showPopup(e);
-            }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                showPopup(e);
-            }
-            private void showPopup(MouseEvent e) {
+        	
+            
+        	private void showPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row >= 0 && row < table.getRowCount()) {
@@ -73,7 +72,7 @@ public class PostListView extends JDialog implements IPostListView {
             }
         });
 
-        editItem.addActionListener(e -> {
+        /*editItem.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 Post post = tableModel.getPostAt(row);
@@ -91,15 +90,15 @@ public class PostListView extends JDialog implements IPostListView {
                     controller.excluirPost(post);
                 }
             }
-        });
+        });*/
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(addButton, BorderLayout.EAST);
+        //panel.add(addButton, BorderLayout.EAST);
 
         add(scrollPane, BorderLayout.CENTER);
-        add(panel, BorderLayout.SOUTH);
+        //add(panel, BorderLayout.SOUTH);
 
-        controller.loadPosts();
+    
     }
 
     @Override

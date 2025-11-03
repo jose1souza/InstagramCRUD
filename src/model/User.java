@@ -2,7 +2,7 @@ package model;
 
 import java.util.List;
 
-import model.data.mysql.utils.PasswordHash;
+import model.auth.PasswordHash;
 
 public class User {
 	private int id;
@@ -16,48 +16,58 @@ public class User {
 		this.id = id;
 	}
 	
-	public User() {}
-
-	public String getName() {
-		return name;
+	public void setId(int id) {
+		this.id = id;
 	}
-
+	
+	public int getId() {
+		return id;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public UserGender getGender() {
-		return gender;
+	
+	public String getName() {
+		return name;
 	}
 
 	public void setGender(UserGender gender) {
 		this.gender = gender;
 	}
-
-	public String getEmail() {
-		return email;
+	
+	public UserGender getGender() {
+		return gender;
 	}
-
+	
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public List<Post> getPosts() {
-		return posts;
+	
+	public String getEmail() {
+		return email;
 	}
-
+	
 	public void setPosts(List<Post> posts) {
 		this.posts = posts;
 	}
-
-	public int getId() {
-		return id;
+	
+	public List<Post> getPosts() {
+		return posts;
+	}
+	
+	public void setPassword(String password){
+		this.passwordHash = PasswordHash.hashPassword(password);
+	}
+	
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
 	}
 	
 	public String getPasswordHash() {
 		return passwordHash;
 	}
-	
+
 	public void validate() {
 		if (name == null || name.isBlank()) {
 			throw new IllegalArgumentException("O nome do usuário não pode ser vazio.");
@@ -76,17 +86,5 @@ public class User {
 	public String toString() {
 		return name;
 	}
-
-	public void setUserId(int i) {
-		this.id = i;
-		
-	}
 	
-	public void setPassword(String password){
-		this.passwordHash = PasswordHash.hashPassword(password);
-	}
-	
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
 }
